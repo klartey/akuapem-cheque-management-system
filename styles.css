@@ -4,6 +4,26 @@
 .vault-maker{display:block;font-size:11px;color:#8a5f0d;margin-top:2px}
 .vault-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .vault-note{font-size:11px;color:var(--muted);font-style:italic;max-width:200px}
+.disabled{background:#eceff3;color:#697586}
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.admin-tab{background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 14px;color:var(--muted);font-weight:700;font-size:13px}
+.admin-tab:hover{color:var(--navy)}.admin-tab.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tab-badge{background:var(--red);color:#fff;border-radius:99px;padding:1px 7px;font-size:11px;margin-left:3px}
+.chip{display:inline-block;background:#eef3f8;border:1px solid var(--line);border-radius:99px;padding:2px 9px;font-size:11px;color:#2e5976;margin:1px 0}
+.chip.sys{background:var(--gold-pale);color:#825c16;border-color:#efd899}
+.muted-sm{font-size:11px;color:var(--muted)}
+.sod-flag{color:var(--red);font-size:10px;font-weight:700;background:var(--red-bg);border-radius:4px;padding:1px 5px}
+.admin-actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ghost.xs,.primary.xs{padding:5px 9px;font-size:11px;border-radius:6px}
+.ghost.danger{color:var(--red);border-color:#e6bcbc}
+.sod-pair{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #edf0f4;font-size:13px}.sod-pair b{color:var(--red)}
+.sod-add{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.sod-add select{border:1px solid var(--line);border-radius:8px;padding:9px;background:#fff;flex:1;min-width:120px}
+.ok-note{color:var(--green);font-size:13px;background:var(--green-bg);border-radius:8px;padding:11px 13px}
+.admin-modal{width:min(620px,100%);max-height:88vh;overflow:auto}
+.perm-catalog{margin-top:12px;display:grid;gap:12px}
+.perm-group{border:1px solid var(--line);border-radius:9px;padding:11px 13px}.perm-group>b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#758398;margin-bottom:7px}
+.perm-cbl{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0}
 .vault-stage{display:flex;align-items:center;justify-content:center;gap:38px;padding:30px 14px 36px;background:radial-gradient(120% 90% at 50% 0,#fbfcfe,#eaf0f6);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;flex-wrap:wrap}
 .vault-side{display:flex;flex-direction:column;align-items:center;gap:15px}
 .cylinder{width:150px;height:280px;position:relative;filter:drop-shadow(0 18px 22px rgba(12,42,80,.16));cursor:pointer;transition:transform .16s,filter .16s}
