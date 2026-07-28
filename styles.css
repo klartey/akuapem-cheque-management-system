@@ -24,6 +24,11 @@
 .perm-catalog{margin-top:12px;display:grid;gap:12px}
 .perm-group{border:1px solid var(--line);border-radius:9px;padding:11px 13px}.perm-group>b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#758398;margin-bottom:7px}
 .perm-cbl{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0}
+.acb-logo{display:block;width:100%;height:100%}
+.seal{width:62px;height:62px;border:0;padding:0;margin-bottom:26px}
+.mark-icon{width:46px;height:46px;background:none;border-radius:0;padding:0}
+.brand-logo{border:0;padding:0;width:42px;height:42px;flex-shrink:0}
+.temp-cred{margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:700;letter-spacing:2px;background:var(--navy);color:#f2e2b4;border-radius:9px;padding:14px;text-align:center;user-select:all}
 .vault-stage{display:flex;align-items:center;justify-content:center;gap:38px;padding:30px 14px 36px;background:radial-gradient(120% 90% at 50% 0,#fbfcfe,#eaf0f6);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;flex-wrap:wrap}
 .vault-side{display:flex;flex-direction:column;align-items:center;gap:15px}
 .cylinder{width:150px;height:280px;position:relative;filter:drop-shadow(0 18px 22px rgba(12,42,80,.16));cursor:pointer;transition:transform .16s,filter .16s}
