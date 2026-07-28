@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = __dirname;
-const storePath = path.join(root, 'data', 'records.json');
+const dataDir = process.env.DATA_DIR || path.join(root, 'data');
+const storePath = path.join(dataDir, 'records.json');
 const PERMISSIONS = [
   { id: 'request.create', label: 'Create cheque book request', cat: 'Transactions' },
   { id: 'inventory.create', label: 'Register inventory range', cat: 'Transactions' },
@@ -58,7 +59,8 @@ const seed = {
 };
 function load(){fs.mkdirSync(path.dirname(storePath),{recursive:true});if(!fs.existsSync(storePath))fs.writeFileSync(storePath,JSON.stringify(seed,null,2));const data=JSON.parse(fs.readFileSync(storePath,'utf8'));let changed=false;for(const key in seed)if(!data[key]){data[key]=seed[key];changed=true}if(changed)save(data);return data}
 function save(data){fs.writeFileSync(storePath,JSON.stringify(data,null,2))}
-const securityHeaders={'X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'no-referrer','Permissions-Policy':'geolocation=(), microphone=(), camera=(), payment=()','Cross-Origin-Opener-Policy':'same-origin','Cross-Origin-Resource-Policy':'same-origin','Content-Security-Policy':"default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'"};
+const securityHeaders={'X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'no-referrer','Permissions-Policy':'geolocation=(), microphone=(), camera=(), payment=()','Cross-Origin-Opener-Policy':'same-origin','Cross-Origin-Resource-Policy':'same-origin','Strict-Transport-Security':'max-age=31536000; includeSubDomains','Content-Security-Policy':"default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'"};
+function clientIp(req){return (req.headers['x-forwarded-for']||'').split(',')[0].trim()||req.socket.remoteAddress||'unknown'}
 function send(res,status,body){res.writeHead(status,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
 const MAX_BODY=32*1024;
 function collect(req){return new Promise((resolve,reject)=>{let raw='';let size=0;let over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>MAX_BODY){over=true;reject(new Error('Payload too large'))}else raw+=c});req.on('end',()=>{if(over)return;try{resolve(JSON.parse(raw||'{}'))}catch{reject(new Error('Malformed JSON'))}});req.on('error',()=>{if(!over)reject(new Error('Stream error'))})})}
@@ -70,7 +72,7 @@ const SESSION_TTL=8*3600*1000;
 const sessions=new Map();
 function cookies(req){const out={};(req.headers.cookie||'').split(';').forEach(p=>{const i=p.indexOf('=');if(i>0)out[p.slice(0,i).trim()]=p.slice(i+1).trim()});return out}
 function getSession(req){const id=cookies(req)['acb_session'];if(!id)return null;const s=sessions.get(id);if(!s)return null;if(Date.now()-s.ts>SESSION_TTL){sessions.delete(id);return null}return s}
-function sessionCookie(id,maxAge){return `acb_session=${id}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}`}
+function sessionCookie(id,maxAge){return `acb_session=${id}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${process.env.SECURE_COOKIES?'; Secure':''}`}
 function ensureGov(data){data.directory=data.directory||{};data.roles=data.roles||{};data.groups=data.groups||{};data.sodMatrix=data.sodMatrix||[];data.adminQueue=data.adminQueue||[];data.adminAudit=data.adminAudit||[]}
 function effPerms(data,role,groups){const set=new Set();const rc=data.roles||{},gc=data.groups||{};const names=[role,...((groups||[]).flatMap(g=>gc[g]?.roles||[]))];for(const rn of names){const r=rc[rn];if(r)(r.permissions||[]).forEach(x=>set.add(x))}return set}
 function isGlobal(data,role,groups){const rc=data.roles||{},gc=data.groups||{};const names=[role,...((groups||[]).flatMap(g=>gc[g]?.roles||[]))];return names.some(n=>rc[n]?.global)}
@@ -82,7 +84,7 @@ function initialsOf(name){return String(name||'').split(/\s+/).map(w=>w[0]).filt
 function notify(data,customer,account,branch,message,channel){data.notifications=data.notifications||[];data.notifications.unshift([ref('NTF'),customer||'Customer',account||'—',branch,channel||'SMS',message,'Sent',now()]);return data.notifications[0]}
 function statePayload(data,me){const scoped=scope(data,me);const admin=has(me,'admin.manage')||has(me,'admin.authorise');if(!admin)for(const k of ['directory','roles','groups','sodMatrix','adminQueue','adminAudit'])delete scoped[k];return{data:scoped,role:me.role,branch:me.branch,name:me.name,perms:[...me.perms],global:me.global,initials:initialsOf(me.name),roleLabel:(data.roles?.[me.role]?.label)||me.role,permCatalog:admin?PERMISSIONS:undefined}}
 function scope(data,sess){if(!sess||sess.global)return data;const b=sess.branch;const out={};for(const k in data)out[k]=Array.isArray(data[k])?data[k].filter(r=>Array.isArray(r)&&r.includes(b)):data[k];return out}
-const usersPath=path.join(root,'data','users.json');
+const usersPath=path.join(dataDir,'users.json');
 const DEMO_PASSWORD='Akuapem@2026';
 function seedUsers(){if(fs.existsSync(usersPath))return;const demo=[['admin@acb.com','System Admin','All Branches','Akua Boateng'],['headoffice@acb.com','Head-Office Users','All Branches','Kofi Mensah'],['manager.koforidua@acb.com','Branch Manager','Koforidua Branch','Adwoa Owusu'],['ops.nsawam@acb.com','Branch Operations','Nsawam Branch','Yaw Sarpong'],['cs.nsawam@acb.com','Customer Service','Nsawam Branch','Esi Nkrumah']];const users={};for(const[id,role,branch,name]of demo){const salt=crypto.randomBytes(16).toString('hex');const hash=crypto.scryptSync(DEMO_PASSWORD,salt,64).toString('hex');users[id.toLowerCase()]={role,branch,name,salt,hash}}fs.mkdirSync(path.dirname(usersPath),{recursive:true});fs.writeFileSync(usersPath,JSON.stringify(users,null,2))}
 function verifyUser(staffId,password){let users;try{users=JSON.parse(fs.readFileSync(usersPath,'utf8'))}catch{return null}const id=String(staffId||'').toLowerCase().trim();const u=users[id];if(!u)return null;let calc;try{calc=crypto.scryptSync(String(password||''),u.salt,64)}catch{return null}const stored=Buffer.from(u.hash,'hex');if(calc.length!==stored.length||!crypto.timingSafeEqual(calc,stored))return null;return id}
@@ -111,7 +113,7 @@ function applyChange(data,chg){const p=chg.payload;switch(chg.type){
   default:return 'Unknown change type.';
 }}
 const server=http.createServer(async(req,res)=>{const url=new URL(req.url,'http://localhost');
-  if(url.pathname.startsWith('/api/')&&rateLimited(req.socket.remoteAddress||'unknown'))return send(res,429,{error:'Too many requests. Please slow down.'});
+  if(url.pathname.startsWith('/api/')&&rateLimited(clientIp(req)))return send(res,429,{error:'Too many requests. Please slow down.'});
   if(req.method==='POST'&&url.pathname==='/api/session'){try{const body=await collect(req);const uid=verifyUser(body.staffId,body.password);if(!uid)return send(res,401,{error:'Invalid staff ID or password.'});const data=load();const me=principal(data,uid);if(!me)return send(res,403,{error:'This account is disabled. Contact an administrator.'});const id=crypto.randomBytes(18).toString('hex');sessions.set(id,{uid,ts:Date.now()});res.writeHead(200,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store','Set-Cookie':sessionCookie(id,SESSION_TTL/1000)});return res.end(JSON.stringify(statePayload(data,me)))}catch{return send(res,400,{error:'Invalid request.'})}}
   if(req.method==='POST'&&url.pathname==='/api/logout'){const id=cookies(req)['acb_session'];if(id)sessions.delete(id);res.writeHead(200,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store','Set-Cookie':sessionCookie('',0)});return res.end(JSON.stringify({ok:true}))}
   const rawSess=getSession(req);

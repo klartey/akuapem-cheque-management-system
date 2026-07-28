@@ -10,6 +10,24 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000). The server creates `data/records.json` the first time it runs, which holds the demo transactions and audit events.
 
+## Deploy
+
+This is a stateful, long-running Node process with a file-backed store and in-process sessions. It must run on a host that keeps **one persistent process** so state (sessions, maker-checker queues, admin approvals) is shared across users — deploy it to Render, Railway, or Fly.io, **not** a serverless platform.
+
+**Render (blueprint included):** New + → Blueprint → connect this repo. Render reads `render.yaml` and runs `node server.js`.
+
+**Railway / Fly / Heroku-style:** the included `Procfile` (`web: node server.js`) and the `start` script are enough; point the platform at this repo.
+
+The server honours these environment variables:
+
+| Var | Purpose |
+| --- | --- |
+| `PORT` | Port to listen on (set automatically by the host). |
+| `SECURE_COOKIES` | Set to `1` in production so the session cookie is flagged `Secure` (HTTPS only). |
+| `DATA_DIR` | Directory for `records.json` / `users.json`. Point it at a mounted disk for durable data. |
+
+**Durability:** on a free/ephemeral filesystem the data reseeds on every restart. For persistent data, attach a disk and set `DATA_DIR` to its mount path (the `render.yaml` shows the disk block to uncomment on a paid plan).
+
 ## Included workflows
 
 - Role-aware, branch-scoped dashboard and module access

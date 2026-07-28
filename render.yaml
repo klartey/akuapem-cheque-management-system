@@ -1,0 +1,30 @@
+# Render blueprint — deploy this repo as a persistent Node web service.
+# In Render: New + → Blueprint → connect this GitHub repo. Render reads this file.
+#
+# The service runs one always-on Node process, so shared state (sessions,
+# maker-checker queues, admin approvals) works across all users — which is the
+# whole point of the app and the reason a persistent host is used over serverless.
+#
+# Durability note: the free plan has an EPHEMERAL disk, so data/records.json and
+# data/users.json reseed whenever the service restarts or wakes from sleep. For
+# durable data, upgrade the plan and uncomment the `disk` block below plus the
+# DATA_DIR env var so the store lives on the mounted volume.
+services:
+  - type: web
+    name: akuapem-cheque-management-system
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: SECURE_COOKIES
+        value: "1"
+      # - key: DATA_DIR
+      #   value: /var/data
+    # disk:
+    #   name: acb-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
