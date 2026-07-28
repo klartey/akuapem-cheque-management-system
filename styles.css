@@ -25,11 +25,14 @@
 .perm-group{border:1px solid var(--line);border-radius:9px;padding:11px 13px}.perm-group>b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#758398;margin-bottom:7px}
 .perm-cbl{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0}
 .acb-logo{display:block;width:100%;height:100%;object-fit:contain}
-.seal{width:70px;height:70px;border:0;background:#fff;border-radius:16px;padding:6px;margin-bottom:26px}
-.mark-icon{width:48px;height:48px;background:#fff;border-radius:10px;padding:2px}
-.brand-logo{border:0;background:#fff;border-radius:10px;padding:3px;width:44px;height:44px;flex-shrink:0}
-.seal-lg{width:132px;height:132px;background:none;border-radius:0;padding:0;margin-bottom:24px}
-.mark-icon:has(svg.acb-logo){background:none;padding:0;width:52px;height:52px}
+.seal{width:60px;height:60px;border:0;background:none;padding:0;margin-bottom:20px}
+.mark-icon{width:44px;height:44px;background:none;border-radius:0;padding:0}
+.brand-logo{border:0;background:none;padding:0;width:40px;height:40px;flex-shrink:0}
+.seal-lg{width:96px;height:96px;background:none;padding:0;margin-bottom:20px}
+.login-policy{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:16px}
+.linklike{background:none;border:0;padding:0;color:var(--blue);font-weight:700;cursor:pointer;font-size:inherit;text-decoration:underline}
+.powered{margin-top:22px;text-align:center;font-size:11px;color:#9aa7b5;letter-spacing:.3px}.powered b{color:var(--navy)}
+.policy-list{margin:14px 0 0;padding-left:18px;color:var(--ink);font-size:13px;line-height:1.6}.policy-list li{margin-bottom:6px}
 .temp-cred{margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:700;letter-spacing:2px;background:var(--navy);color:#f2e2b4;border-radius:9px;padding:14px;text-align:center;user-select:all}
 .vault-stage{display:flex;align-items:center;justify-content:center;gap:38px;padding:30px 14px 36px;background:radial-gradient(120% 90% at 50% 0,#fbfcfe,#eaf0f6);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;flex-wrap:wrap}
 .vault-side{display:flex;flex-direction:column;align-items:center;gap:15px}
