@@ -1,6 +1,8 @@
 const branches=['Nsawam Branch','Koforidua Branch','Aburi Branch','Adukrom Branch','Mamfe Branch','Madina Branch'];
-// Placeholder emblem for the app — replace with the official Akuapem Community Bank logo asset.
-const LOGO=`<svg viewBox="0 0 64 64" class="acb-logo" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Akuapem Community Bank"><circle cx="32" cy="32" r="31" fill="#092b51"/><circle cx="32" cy="32" r="26.5" fill="none" stroke="#c89b3c" stroke-width="1.3" opacity=".85"/><polygon points="32,11.5 34,17.2 40,17.2 35.1,20.8 37,26.6 32,23 27,26.6 28.9,20.8 24,17.2 30,17.2" fill="#c89b3c"/><text x="32" y="41.6" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-size="16.5" font-weight="700" letter-spacing="1.2" fill="#f2e2b4">ACB</text><rect x="22.5" y="46.5" width="19" height="1.6" rx=".8" fill="#c89b3c" opacity=".8"/></svg>`;
+// Official logo is served as ./logo.png; this SVG emblem is the fallback shown until that file is present.
+const LOGO_SVG=`<svg viewBox="0 0 64 64" class="acb-logo" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Akuapem Community Bank"><circle cx="32" cy="32" r="31" fill="#092b51"/><circle cx="32" cy="32" r="26.5" fill="none" stroke="#c89b3c" stroke-width="1.3" opacity=".85"/><polygon points="32,11.5 34,17.2 40,17.2 35.1,20.8 37,26.6 32,23 27,26.6 28.9,20.8 24,17.2 30,17.2" fill="#c89b3c"/><text x="32" y="41.6" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-size="16.5" font-weight="700" letter-spacing="1.2" fill="#f2e2b4">ACB</text><rect x="22.5" y="46.5" width="19" height="1.6" rx=".8" fill="#c89b3c" opacity=".8"/></svg>`;
+window.acbLogoFail=function(img){if(img&&img.parentElement)img.parentElement.innerHTML=LOGO_SVG};
+const LOGO=`<img src="./logo.png" class="acb-logo" alt="Akuapem Community Bank" onerror="acbLogoFail(this)">`;
 const roles={
  'System Admin':{initials:'SA',global:true,actions:['all']},
  'Head-Office Users':{initials:'HO',global:true,actions:['approve','manage','report']},

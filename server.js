@@ -66,7 +66,7 @@ const MAX_BODY=32*1024;
 function collect(req){return new Promise((resolve,reject)=>{let raw='';let size=0;let over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>MAX_BODY){over=true;reject(new Error('Payload too large'))}else raw+=c});req.on('end',()=>{if(over)return;try{resolve(JSON.parse(raw||'{}'))}catch{reject(new Error('Malformed JSON'))}});req.on('error',()=>{if(!over)reject(new Error('Stream error'))})})}
 const rateHits=new Map();
 function rateLimited(ip){const now=Date.now(),windowMs=60000,max=120;const arr=(rateHits.get(ip)||[]).filter(t=>now-t<windowMs);arr.push(now);rateHits.set(ip,arr);if(rateHits.size>5000)for(const[k,v]of rateHits)if(!v.some(t=>now-t<windowMs))rateHits.delete(k);return arr.length>max}
-const publicFiles={'index.html':'text/html','app.js':'application/javascript','styles.css':'text/css'};
+const publicFiles={'index.html':'text/html','app.js':'application/javascript','styles.css':'text/css','logo.png':'image/png','logo.svg':'image/svg+xml'};
 const crypto=require('node:crypto');
 const SESSION_TTL=8*3600*1000;
 const sessions=new Map();
@@ -154,7 +154,8 @@ const server=http.createServer(async(req,res)=>{const url=new URL(req.url,'http:
     }}catch{return send(res,400,{error:'Invalid request.'})}
   }
   const file=url.pathname==='/'?'index.html':url.pathname.slice(1);const type=publicFiles[file];
-  if(req.method!=='GET'||!type){res.writeHead(404,securityHeaders);return res.end('Not found')}
-  res.writeHead(200,{...securityHeaders,'Content-Type':`${type}; charset=utf-8`,'Cache-Control':'no-cache'});fs.createReadStream(path.join(root,file)).pipe(res)});
+  const fp=path.join(root,file);
+  if(req.method!=='GET'||!type||!fs.existsSync(fp)){res.writeHead(404,securityHeaders);return res.end('Not found')}
+  const isImg=type.startsWith('image/');res.writeHead(200,{...securityHeaders,'Content-Type':isImg?type:`${type}; charset=utf-8`,'Cache-Control':isImg?'public, max-age=86400':'no-cache'});fs.createReadStream(fp).pipe(res)});
 seedUsers();
 const port=process.env.PORT||3000;server.listen(port,()=>console.log(`Cheque Management System running on http://localhost:${port}`));
