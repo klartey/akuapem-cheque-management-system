@@ -15,6 +15,7 @@ Open [http://localhost:3000](http://localhost:3000). The server creates `data/re
 - Role-aware, branch-scoped dashboard and module access
 - Cheque-book requests, inventory ranges, issuance, verification, stop/cancel, and returns
 - Maker-checker submission and authorisation flow
+- Automated customer alerts (ready-for-collection and stock-arrival), logged for delivery via an SMS/email gateway
 - Reports, user administration, and full audit trail
 
 ## Security posture
