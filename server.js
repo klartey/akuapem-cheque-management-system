@@ -260,4 +260,9 @@ const handler=async(req,res)=>{try{await ready();const url=new URL(req.url,'http
   }catch(err){console.error('handler error:',err&&err.message);try{await logSys('ERROR','error','system',clientIp(req),err&&err.message)}catch(e){}if(!res.headersSent)send(res,500,{error:'Server error.'})}};
 const server=http.createServer(handler);
 if(require.main===module){ready().then(()=>{const port=process.env.PORT||3000;server.listen(port,()=>console.log(`Cheque Management System running on http://localhost:${port} (db: ${db.backend()})`))}).catch(e=>{console.error('startup failed:',e);process.exit(1)})}
-module.exports={handler,server};
+// Default export is the request handler itself, so this module is valid as a
+// serverless function entry (Vercel requires the default export to be a function).
+// The handler/server are also attached as named properties for other callers.
+module.exports=handler;
+module.exports.handler=handler;
+module.exports.server=server;
