@@ -33,7 +33,14 @@ The server honours these environment variables:
 - Role-aware, branch-scoped dashboard and module access
 - Cheque-book requests, inventory ranges, issuance, verification, stop/cancel, and returns
 - Maker-checker submission and authorisation flow
-- Automated customer alerts (ready-for-collection and stock-arrival), logged for delivery via an SMS/email gateway
+- Automated customer alerts (ready-for-collection and stock-arrival), logged for delivery
+- Itemised vault: per-customer cheques with a linked phone number, sending a real **Arkesel SMS** on branch receipt
+
+## SMS / customer alerts (Arkesel)
+
+Cheque book requests now capture the customer's **phone number**. Head office can dispatch **itemised** cheques to a branch vault (each linked to a requisition and its phone). When a branch **receives** an itemised cheque (Vault & Reconciliation → Itemised customer cheques → *Receive & notify*), the system sends that customer an SMS that their cheque book is ready for collection, and records the delivery status in Customer Alerts.
+
+Configure the gateway in **Administration → SMS Gateway** (requires the `admin.manage` permission): paste your Arkesel **Sender ID** (registered) and **API key**, tick *Enable live SMS sending*, and use *Send test SMS* to verify. The key is stored server-side in `data/sms.json` (git-ignored), is never returned to the browser in full, and requires a registered Sender ID plus customer consent to use in production. Bulk vault stock dispatch is unchanged and still available.
 - Reports, user administration, and full audit trail
 
 ## Security posture
