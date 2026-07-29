@@ -1,4 +1,6 @@
 data/records.json
 data/users.json
 data/sms.json
+data/customers.json
+data/customers.json.tmp
 node_modules/

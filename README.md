@@ -36,6 +36,15 @@ The server honours these environment variables:
 - Automated customer alerts (ready-for-collection and stock-arrival), logged for delivery
 - Itemised vault: per-customer cheques with a linked phone number, sending a real **Arkesel SMS** on branch receipt
 
+## Customer database
+
+A separate, indexed customer store (not part of `records.json`) keyed by **account number** (unique; phone numbers may repeat, since one holder can have several accounts).
+
+- **Monthly import** (Administration → Customer Database, needs `customers.manage`): export the monthly extract from the core banking system as **CSV** and upload it. Rows are **upserted** by account number — new accounts added, existing ones refreshed — with new/updated counts reported. Import is streamed (low memory) and written atomically (temp file + rename).
+- **Search** (Customer & Account Search, needs `customers.view`): find a customer by account number or name and **"Use for requisition"** to auto-fill the cheque book request (account, name, phone).
+- **Auto-enrolment**: when Customer Service raises a request for a customer not yet on file, that customer is **added to the database once the request is authorised**.
+- The store loads into an in-memory index at startup — O(1) account lookup, fast capped name search — and persists to `data/customers.json` (git-ignored). The CSV must contain an `Account Number` column; name is built from First/Middle/Surname (or Company Name), phone from Mobile/Main/Mobile-Money.
+
 ## SMS / customer alerts (Arkesel)
 
 Cheque book requests now capture the customer's **phone number**. Head office can dispatch **itemised** cheques to a branch vault (each linked to a requisition and its phone). When a branch **receives** an itemised cheque (Vault & Reconciliation → Itemised customer cheques → *Receive & notify*), the system sends that customer an SMS that their cheque book is ready for collection, and records the delivery status in Customer Alerts.
