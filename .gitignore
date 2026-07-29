@@ -4,3 +4,4 @@ data/sms.json
 data/customers.json
 data/customers.json.tmp
 node_modules/
+data/pgdata/
