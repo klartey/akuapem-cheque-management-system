@@ -79,8 +79,8 @@ const securityHeaders={'X-Content-Type-Options':'nosniff','X-Frame-Options':'DEN
 function clientIp(req){return (req.headers['x-forwarded-for']||'').split(',')[0].trim()||req.socket.remoteAddress||'unknown'}
 function send(res,status,body){res.writeHead(status,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
 const MAX_BODY=32*1024;
-function collect(req){return new Promise((resolve,reject)=>{let raw='';let size=0;let over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>MAX_BODY){over=true;reject(new Error('Payload too large'))}else raw+=c});req.on('end',()=>{if(over)return;try{resolve(JSON.parse(raw||'{}'))}catch{reject(new Error('Malformed JSON'))}});req.on('error',()=>{if(!over)reject(new Error('Stream error'))})})}
-function collectText(req,maxBytes){return new Promise((resolve,reject)=>{const chunks=[];let size=0,over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>maxBytes){over=true;reject(new Error('too large'))}else chunks.push(c)});req.on('end',()=>{if(!over)resolve(Buffer.concat(chunks).toString('utf8'))});req.on('error',()=>{if(!over)reject(new Error('stream'))})})}
+function collect(req){if(req.body!==undefined&&req.body!==null){const b=req.body;if(typeof b==='object'&&!Buffer.isBuffer(b))return Promise.resolve(b);try{return Promise.resolve(JSON.parse((Buffer.isBuffer(b)?b.toString('utf8'):String(b))||'{}'))}catch{return Promise.reject(new Error('Malformed JSON'))}}return new Promise((resolve,reject)=>{let raw='';let size=0;let over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>MAX_BODY){over=true;reject(new Error('Payload too large'))}else raw+=c});req.on('end',()=>{if(over)return;try{resolve(JSON.parse(raw||'{}'))}catch{reject(new Error('Malformed JSON'))}});req.on('error',()=>{if(!over)reject(new Error('Stream error'))})})}
+function collectText(req,maxBytes){if(req.body!==undefined&&req.body!==null){const b=req.body;return Promise.resolve(Buffer.isBuffer(b)?b.toString('utf8'):(typeof b==='string'?b:JSON.stringify(b)))}return new Promise((resolve,reject)=>{const chunks=[];let size=0,over=false;req.on('data',c=>{if(over)return;size+=c.length;if(size>maxBytes){over=true;reject(new Error('too large'))}else chunks.push(c)});req.on('end',()=>{if(!over)resolve(Buffer.concat(chunks).toString('utf8'))});req.on('error',()=>{if(!over)reject(new Error('stream'))})})}
 const rateHits=new Map();
 function rateLimited(ip){const now=Date.now(),windowMs=60000,max=120;const arr=(rateHits.get(ip)||[]).filter(t=>now-t<windowMs);arr.push(now);rateHits.set(ip,arr);if(rateHits.size>5000)for(const[k,v]of rateHits)if(!v.some(t=>now-t<windowMs))rateHits.delete(k);return arr.length>max}
 const publicFiles={'index.html':'text/html','app.js':'application/javascript','styles.css':'text/css','logo.png':'image/png','logo.svg':'image/svg+xml'};
@@ -152,7 +152,7 @@ async function importCustomersCsv(text){
   for(let li=1;li<lines.length;li++){if(!lines[li].trim())continue;const c=parseCsvLine(lines[li]);const acct=String(c[iA]||'').trim();if(!acct){skip++;continue}const phoneRaw=(iMob>=0&&c[iMob])||(iMain>=0&&c[iMain])||(iMomo>=0&&c[iMomo])||'';byAcct.set(acct,{account:acct,name:custName(c[iF],c[iM],c[iS],c[iC]),phone:phoneRaw?normPhone(phoneRaw):'',branch:String(c[iB]||'').trim(),type:String(c[iT]||'').trim(),status:String(c[iSt]||'').trim()})}
   const uniq=[...byAcct.values()];const ts=now();
   const before=(await db.query('select count(*)::int n from customers'))[0].n;
-  const BATCH=400;
+  const BATCH=1000;
   await db.tx(async q=>{
     for(let i=0;i<uniq.length;i+=BATCH){
       const chunk=uniq.slice(i,i+BATCH);const ph=[];const vals=[];
@@ -203,7 +203,9 @@ function applyChange(data,chg){const p=chg.payload;switch(chg.type){
   default:return 'Unknown change type.';
 }}
 
-const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');
+let _ready;
+function ready(){if(!_ready)_ready=(async()=>{await db.init();await seedUsers();await load();})();return _ready}
+const handler=async(req,res)=>{try{await ready();const url=new URL(req.url,'http://localhost');
   if(url.pathname.startsWith('/api/')&&rateLimited(clientIp(req)))return send(res,429,{error:'Too many requests. Please slow down.'});
   if(req.method==='POST'&&url.pathname==='/api/session'){try{const body=await collect(req);const idKey=String(body.staffId||'').toLowerCase().trim();if(loginLocked(idKey))return send(res,429,{error:'Too many failed attempts. Please try again in 15 minutes.'});const uid=await verifyUser(body.staffId,body.password);if(!uid){noteFail(idKey);return send(res,401,{error:'Invalid staff ID or password.'})}clearFails(idKey);const data=await load();const me=principal(data,uid);if(!me)return send(res,403,{error:'This account is disabled. Contact an administrator.'});res.writeHead(200,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store','Set-Cookie':sessionCookie(signSession(uid),SESSION_TTL/1000)});return res.end(JSON.stringify(await statePayload(data,me)))}catch{return send(res,400,{error:'Invalid request.'})}}
   if(req.method==='POST'&&url.pathname==='/api/logout'){res.writeHead(200,{...securityHeaders,'Content-Type':'application/json','Cache-Control':'no-store','Set-Cookie':sessionCookie('',0)});return res.end(JSON.stringify({ok:true}))}
@@ -247,10 +249,10 @@ const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'h
     }}catch{return send(res,400,{error:'Invalid request.'})}
   }
   const file=url.pathname==='/'?'index.html':url.pathname.slice(1);const type=publicFiles[file];
-  const fp=path.join(root,file);
+  const fp=path.join(root,'public',file);
   if(req.method!=='GET'||!type||!fs.existsSync(fp)){res.writeHead(404,securityHeaders);return res.end('Not found')}
   const isImg=type.startsWith('image/');res.writeHead(200,{...securityHeaders,'Content-Type':isImg?type:`${type}; charset=utf-8`,'Cache-Control':isImg?'public, max-age=86400':'no-cache'});fs.createReadStream(fp).pipe(res);
-  }catch(err){console.error('handler error:',err&&err.message);if(!res.headersSent)send(res,500,{error:'Server error.'})}});
-
-async function main(){await db.init();await seedUsers();await load();const port=process.env.PORT||3000;server.listen(port,()=>console.log(`Cheque Management System running on http://localhost:${port} (db: ${db.backend()})`));}
-main().catch(e=>{console.error('startup failed:',e);process.exit(1)});
+  }catch(err){console.error('handler error:',err&&err.message);if(!res.headersSent)send(res,500,{error:'Server error.'})}};
+const server=http.createServer(handler);
+if(require.main===module){ready().then(()=>{const port=process.env.PORT||3000;server.listen(port,()=>console.log(`Cheque Management System running on http://localhost:${port} (db: ${db.backend()})`))}).catch(e=>{console.error('startup failed:',e);process.exit(1)})}
+module.exports={handler,server};
