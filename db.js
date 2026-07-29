@@ -63,10 +63,16 @@ async function schema() {
   await q(`create table if not exists customers(
     account text primary key, name text, name_lc text, phone text,
     branch text, type text, status text, source text, updated text)`);
+  await q(`create table if not exists system_log(
+    id bigserial primary key, ts timestamptz not null default now(),
+    level text not null, event text not null, actor text, ip text, detail text)`);
+  await q(`create index if not exists idx_syslog_ts on system_log(ts desc)`);
+  await q(`create index if not exists idx_syslog_level on system_log(level)`);
+  await q(`create index if not exists idx_syslog_event on system_log(event)`);
   // Lock the tables away from the Supabase public REST API. The app connects as the
   // postgres role (bypasses RLS), so this only denies the anon/authenticated PostgREST
   // roles — PII (customers) and password hashes (credentials) are never web-exposed.
-  for (const t of ['app_state', 'credentials', 'config', 'customers']) {
+  for (const t of ['app_state', 'credentials', 'config', 'customers', 'system_log']) {
     try { await q(`alter table ${t} enable row level security`); } catch (e) { /* not supported (PGlite) — no PostgREST there anyway */ }
   }
   // Fast fuzzy search where the extension exists (Supabase). Harmless if unavailable (PGlite falls back to a scan).
