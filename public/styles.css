@@ -104,3 +104,33 @@
 .rep-bar-track{background:#eef2f6;border-radius:6px;height:16px;overflow:hidden}
 .rep-bar-fill{height:100%;background:linear-gradient(90deg,#397cb2,#0d416f);border-radius:6px;min-width:2px}
 .rep-bar-val{text-align:right;color:var(--muted);font-weight:600}
+.adv-mid{grid-template-columns:1.9fr 1fr;align-items:stretch}
+.adv-chart{display:flex;flex-direction:column}
+.adv-side{display:flex;flex-direction:column;gap:18px}
+.area-wrap{margin-top:6px;flex:1;display:flex;flex-direction:column;justify-content:flex-end}
+.area-svg{width:100%;height:210px;display:block}
+.area-x{display:flex;justify-content:space-between;padding:6px 22px 0;font-size:11px;color:var(--muted)}
+.adv-goal{background:linear-gradient(160deg,#0c3969,#08243f);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:150px}
+.adv-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8fb3d4;margin:0 0 6px}
+.adv-goal h4{margin:0;font-size:18px;color:#fff}
+.adv-goal-foot{margin-top:18px}
+.adv-goal-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px}
+.adv-goal-pct{font-size:30px;font-weight:800;letter-spacing:-1px}
+.adv-goal-target{font-size:12px;color:#9fb6ce;margin-bottom:4px}
+.adv-goal-track{height:7px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden}
+.adv-goal-fill{height:100%;background:var(--gold);border-radius:99px}
+.adv-info-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.adv-info-icon{width:34px;height:34px;border-radius:10px;background:var(--gold-pale);color:#a67618;display:grid;place-items:center;font-size:16px}
+.adv-info h4{margin:0;font-size:15px}
+.adv-info-text{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
+.adv-info-text b{color:var(--ink)}
+.stat-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:10px}
+.stat-value{font-size:26px;font-weight:800;letter-spacing:-1px;color:#15283b;margin:0}
+.stat-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.stat-badge.up{color:var(--green);background:var(--green-bg)}
+.stat-badge.down{color:var(--red);background:var(--red-bg)}
+.stat-badge.flat{color:var(--muted);background:#eef2f6}
+.adv-kpis{margin-top:18px}
+@keyframes revealUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.reveal{animation:revealUp .5s ease both;animation-delay:var(--d,0ms)}
+@media (max-width:900px){.adv-mid{grid-template-columns:1fr}}
