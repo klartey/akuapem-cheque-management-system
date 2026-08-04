@@ -9,8 +9,6 @@ const PERMISSIONS = [
   { id: 'request.create', label: 'Create cheque book request', cat: 'Transactions' },
   { id: 'inventory.create', label: 'Register inventory range', cat: 'Transactions' },
   { id: 'issuance.create', label: 'Issue cheque book', cat: 'Transactions' },
-  { id: 'stop.create', label: 'Raise stop / cancel cheque', cat: 'Transactions' },
-  { id: 'returns.create', label: 'Record returned cheque', cat: 'Transactions' },
   { id: 'txn.authorise', label: 'Authorise transactions', cat: 'Transactions' },
   { id: 'vault.dispatch', label: 'Dispatch stock to branch vault', cat: 'Vault' },
   { id: 'vault.submit', label: 'Reconcile & submit vault stock', cat: 'Vault' },
@@ -29,9 +27,7 @@ const seed = {
   requests: [['CBR-2026-0841','AC-00129482','Ama Ofori','Nsawam Branch','50 leaves','Pending Authorization','24 Jul, 09:42'],['CBR-2026-0838','AC-00773819','Kwaku Mensah','Koforidua Branch','100 leaves','Authorized','23 Jul, 15:15'],['CBR-2026-0836','AC-00359510','Akosua Frimpong','Aburi Branch','50 leaves','Issued','23 Jul, 11:30'],['CBR-2026-0833','AC-00902811','Bright Logistics Ltd','Madina Branch','100 leaves','Rejected','22 Jul, 16:21']],
   inventory: [['INV-NS-001','Nsawam Branch','ACB Standard','000120001 – 000120500','500','428','Active'],['INV-KF-002','Koforidua Branch','ACB Corporate','000125001 – 000125300','300','112','Active'],['INV-AB-001','Aburi Branch','ACB Standard','000130001 – 000130200','200','0','Archived'],['INV-MD-003','Madina Branch','ACB Standard','000150001 – 000150600','600','390','Active']],
   issuance: [['ISS-02631','CBR-2026-0836','Akosua Frimpong','Aburi Branch','000130042 – 000130091','Issued','23 Jul, 14:10'],['ISS-02629','CBR-2026-0828','Yaw Boateng','Nsawam Branch','000120118 – 000120167','Collected','22 Jul, 10:05'],['ISS-02628','CBR-2026-0826','Abena Nyarko','Koforidua Branch','000125044 – 000125093','Awaiting Collection','21 Jul, 16:22']],
-  verifications: [['VFY-19044','000120151','AC-00129482','Ama Ofori','Nsawam Branch','₵8,450.00','Active'],['VFY-19041','000125069','AC-00773819','Kwaku Mensah','Koforidua Branch','₵15,200.00','Stopped'],['VFY-19036','000150288','AC-00902811','Bright Logistics Ltd','Madina Branch','₵4,765.00','Returned']],
-  stops: [['STP-0104','000125069','Kwaku Mensah','Koforidua Branch','Lost cheque','Stopped','24 Jul, 08:55'],['CAN-0089','000120094','Nana Addo','Nsawam Branch','Customer request','Pending Authorization','23 Jul, 14:40']],
-  returns: [['RET-0058','000150288','Bright Logistics Ltd','Madina Branch','Insufficient funds','₵4,765.00','Returned'],['RET-0057','000130099','Gifty Asante','Aburi Branch','Signature differs','₵2,100.00','Returned']],
+  verifications: [], stops: [], returns: [],
   vault: [['VLT-2026-0031','Nsawam Branch','ACB Standard','000121001 – 000121500','500 leaves','Awaiting Confirmation','24 Jul, 16:10'],['VLT-2026-0030','Koforidua Branch','ACB Corporate','000126001 – 000126300','300 leaves','Awaiting Confirmation','24 Jul, 14:02'],['VLT-2026-0029','Madina Branch','ACB Standard','000151001 – 000151400','400 leaves','Awaiting Confirmation','24 Jul, 11:18'],['VLT-2026-0027','Koforidua Branch','ACB Standard','000127001 – 000127200','200 leaves','Pending Authorisation','24 Jul, 08:20'],['VLT-2026-0028','Aburi Branch','ACB Standard','000131001 – 000131200','200 leaves','Accepted','23 Jul, 10:40']],
   vaultMeta: {'VLT-2026-0027':{maker:'Kojo Asare',makerRole:'Branch Operations','submitted':'24 Jul, 08:20'}},
   approvals: [['APR-0445','Cheque book request','CBR-2026-0841','Ama Ofori','Nsawam Branch','Esi Nkrumah','24 Jul, 09:42'],['APR-0444','Cheque cancellation','CAN-0089','Nana Addo','Nsawam Branch','Kwabena Osei','23 Jul, 14:40'],['APR-0441','Range registration','INV-MD-003','Madina Branch','Yaa Serwaa','23 Jul, 09:10']],
@@ -41,7 +37,7 @@ const seed = {
     'System Admin': { label: 'System Admin', global: true, system: true, permissions: ['admin.manage','admin.authorise','audit.view','logs.view','reports.view','customers.view','customers.manage'] },
     'Head-Office Users': { label: 'Head-Office Users', global: true, system: true, permissions: ['txn.authorise','vault.dispatch','vault.authorise','reports.view','audit.view','logs.view','notifications.view','customers.view','customers.manage','admin.authorise'] },
     'Branch Manager': { label: 'Branch Manager', global: false, system: true, permissions: ['txn.authorise','vault.authorise','reports.view','audit.view','notifications.view','customers.view'] },
-    'Branch Operations': { label: 'Branch Operations', global: false, system: true, permissions: ['request.create','inventory.create','issuance.create','stop.create','returns.create','vault.submit','notifications.view','customers.view'] },
+    'Branch Operations': { label: 'Branch Operations', global: false, system: true, permissions: ['request.create','inventory.create','issuance.create','vault.submit','notifications.view','customers.view'] },
     'Customer Service': { label: 'Customer Service', global: false, system: true, permissions: ['request.create','reports.view','notifications.view','customers.view'] }
   },
   groups: {
@@ -56,7 +52,7 @@ const seed = {
     'cs.nsawam@acb.com': { name: 'Esi Nkrumah', branch: 'Nsawam Branch', role: 'Customer Service', groups: [], status: 'Active', lastReviewed: '01 Jul, 09:00' }
   },
   branches: ['Nsawam Branch','Koforidua Branch','Aburi Branch','Adukrom Branch','Mamfe Branch','Madina Branch'],
-  sodMatrix: [['request.create','txn.authorise'],['inventory.create','txn.authorise'],['issuance.create','txn.authorise'],['stop.create','txn.authorise'],['returns.create','txn.authorise'],['vault.submit','vault.authorise']],
+  sodMatrix: [['request.create','txn.authorise'],['inventory.create','txn.authorise'],['issuance.create','txn.authorise'],['vault.submit','vault.authorise']],
   adminQueue: [],
   adminAudit: [['01 Jul, 09:00','System','Directory seeded','—','5 users, 5 roles, 2 groups provisioned']],
   notifications: [['NTF-100231','Akosua Frimpong','AC-00359510','Aburi Branch','SMS','Your cheque book 000130042 – 000130091 is ready for collection at Aburi Branch. Please bring valid photo ID.','Sent','23 Jul, 14:12'],['NTF-100228','Kwaku Mensah','AC-00773819','Koforidua Branch','SMS','Cheque stock has arrived at Koforidua Branch — your requested cheque book is being prepared for collection.','Sent','22 Jul, 10:06']],
@@ -210,9 +206,7 @@ async function statePayload(data,me){const scoped=scope(data,me);const admin=has
 const builders={
   request(f,branch){const e=need(f,['account','customer','book']);if(e)return{error:e};const r=ref('CBR');return{bucket:'requests',label:'Cheque book request',ref:r,subject:f.customer,statusIdx:5,finalStatus:'Authorized',entry:[r,f.account,f.customer,branch,f.book,PENDING,now()]}},
   inventory(f,branch){const e=need(f,['type','start','end']);if(e)return{error:e};const start=parseInt(f.start,10),end=parseInt(f.end,10);if(!Number.isFinite(start)||!Number.isFinite(end))return{error:'Start and end serials must be numeric.'};if(end<start)return{error:'End serial cannot be lower than the start serial.'};const width=Math.max(String(f.start).trim().length,String(f.end).trim().length);const pad=n=>String(n).padStart(width,'0');const total=String(end-start+1);const r=ref('INV');return{bucket:'inventory',label:'Range registration',ref:r,subject:f.type,statusIdx:6,finalStatus:'Active',entry:[r,branch,f.type,`${pad(start)} – ${pad(end)}`,total,total,PENDING]}},
-  issuance(f,branch){const e=need(f,['request','account','range']);if(e)return{error:e};const r=ref('ISS');return{bucket:'issuance',label:'Cheque book issuance',ref:r,subject:f.account,statusIdx:5,finalStatus:'Issued',entry:[r,f.request,f.account,branch,f.range,PENDING,now()]}},
-  stop(f,branch){const e=need(f,['cheque','account','reason']);if(e)return{error:e};const cancel=/cancel/i.test(f.instruction||'');const r=ref(cancel?'CAN':'STP');return{bucket:'stops',label:'Stop-cheque instruction',ref:r,subject:f.account,statusIdx:5,finalStatus:cancel?'Cancelled':'Stopped',entry:[r,f.cheque,f.account,branch,f.reason,PENDING,now()]}},
-  returns(f,branch){const e=need(f,['cheque','account','reason']);if(e)return{error:e};const r=ref('RET');return{bucket:'returns',label:'Returned cheque record',ref:r,subject:f.account,statusIdx:6,finalStatus:'Returned',entry:[r,f.cheque,f.account,branch,f.reason,String(f.amount||'').trim()||'—',PENDING]}}
+  issuance(f,branch){const e=need(f,['request','account','range']);if(e)return{error:e};const r=ref('ISS');return{bucket:'issuance',label:'Cheque book issuance',ref:r,subject:f.account,statusIdx:5,finalStatus:'Issued',entry:[r,f.request,f.account,branch,f.range,PENDING,now()]}}
 };
 function applyChange(data,chg){const p=chg.payload;switch(chg.type){
   case 'user/create':{if(data.directory[p.id])return 'A user with that staff ID already exists.';data.directory[p.id]={name:p.name,branch:p.branch,role:p.role,phone:p.phone||'',groups:[],status:'Active',lastReviewed:now()};return null}
