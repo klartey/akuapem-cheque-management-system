@@ -176,3 +176,15 @@
   body.print-cert .modal{box-shadow:none;width:100%;max-width:100%;padding:0}
   body.print-cert .modal-actions{display:none!important}
 }
+/* logo on the destruction certificate */
+.cert-seal{width:58px;height:58px;border:0;background:none;padding:0;display:grid;place-items:center;color:inherit;font-size:0}
+/* interactive dashboard cards + rows */
+.card.clickable{cursor:pointer;transition:transform .14s,box-shadow .14s,border-color .14s}
+.card.clickable:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--blue)}
+.adv-info{position:relative}
+.rowlink{cursor:pointer;transition:background .12s}
+.rowlink:hover{background:var(--blue-bg)}
+.rowlink td:first-child{position:relative}
+/* animated goal bar */
+.adv-goal-fill{transform-origin:left;animation:barGrow .9s cubic-bezier(.4,0,.2,1) both;animation-delay:.2s}
+@keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
