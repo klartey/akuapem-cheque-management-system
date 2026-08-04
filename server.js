@@ -156,7 +156,7 @@ function parseCsvLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.l
 async function importCustomersCsv(text){
   const lines=text.split(/\r?\n/);if(lines.length<2)return{error:'The file is empty or has no data rows.'};
   const headers=parseCsvLine(lines[0]).map(h=>h.trim());const idx=n=>headers.indexOf(n);const iA=idx('Account Number');if(iA<0)return{error:'Missing an "Account Number" column.'};
-  const iF=idx('First Name'),iM=idx('Middle Name'),iS=idx('Surname'),iC=idx('Company Name'),iMob=idx('Mobile Phone Number'),iMain=idx('Main Phone Number'),iMomo=idx('Mobile Money Number'),iT=idx('Account Type'),iSt=idx('Status Of Account'),iB=idx('Account Branch');
+  const iF=idx('First Name'),iM=idx('Middle Name'),iS=(idx('Surname')>=0?idx('Surname'):idx('Last Name')),iC=idx('Company Name'),iMob=idx('Mobile Phone Number'),iMain=idx('Main Phone Number'),iMomo=idx('Mobile Money Number'),iT=idx('Account Type'),iSt=idx('Status Of Account'),iB=idx('Account Branch');
   const byAcct=new Map();let skip=0;
   for(let li=1;li<lines.length;li++){if(!lines[li].trim())continue;const c=parseCsvLine(lines[li]);const acct=String(c[iA]||'').trim();if(!acct){skip++;continue}const phoneRaw=(iMob>=0&&c[iMob])||(iMain>=0&&c[iMain])||(iMomo>=0&&c[iMomo])||'';byAcct.set(acct,{account:acct,name:custName(c[iF],c[iM],c[iS],c[iC]),phone:phoneRaw?normPhone(phoneRaw):'',branch:String(c[iB]||'').trim(),type:String(c[iT]||'').trim(),status:String(c[iSt]||'').trim()})}
   const uniq=[...byAcct.values()];const ts=now();
