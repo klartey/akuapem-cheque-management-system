@@ -194,3 +194,10 @@
 .mark-icon{border-radius:10px}
 .seal,.seal-lg{border-radius:16px}
 .cert-seal{border-radius:12px;padding:2px;font-size:0}
+/* branded print header for batch PDF and branch returns */
+.print-head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #092b51;padding-bottom:10px;margin-bottom:14px}
+.print-head img{width:56px;height:56px;object-fit:contain;flex-shrink:0}
+.print-head h1{font-size:18px;margin:0;color:#092b51}
+.print-tag{margin:2px 0 0;font-size:11px;color:#555}
+.print-sub{font-size:12px;color:#333;margin:0 0 8px}
+.print-foot{margin-top:16px;font-size:10px;color:#777;border-top:1px solid #ccc;padding-top:6px}
