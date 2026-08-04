@@ -188,3 +188,9 @@
 /* animated goal bar */
 .adv-goal-fill{transform-origin:left;animation:barGrow .9s cubic-bezier(.4,0,.2,1) both;animation-delay:.2s}
 @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* real logo (white-bg artwork) presented on clean white chips */
+.brand-logo,.mark-icon,.seal,.seal-lg,.cert-seal{background:#fff;overflow:hidden}
+.brand-logo{border-radius:9px;padding:2px}
+.mark-icon{border-radius:10px}
+.seal,.seal-lg{border-radius:16px}
+.cert-seal{border-radius:12px;padding:2px;font-size:0}
