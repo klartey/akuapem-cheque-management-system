@@ -141,3 +141,8 @@
 .rowmenu-pop button:hover{background:var(--paper)}
 .rowmenu-pop button.danger{color:var(--red)}
 .confirm-modal{width:min(420px,100%)}
+.rep-bar-fill.rag-green{background:var(--green)}
+.rep-bar-fill.rag-amber{background:#c89b3c}
+.rep-bar-fill.rag-orange{background:#d98324}
+.rep-bar-fill.rag-red{background:var(--red)}
+.rep-bar-fill.rag-arch{background:#6b3fa0}
