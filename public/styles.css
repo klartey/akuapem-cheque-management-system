@@ -216,8 +216,9 @@
 .nav-sub-btn{text-align:left;background:transparent;border:0;color:#c7d6e6;font-size:12px;padding:7px 10px;border-radius:6px;cursor:pointer;line-height:1.25}
 .nav-sub-btn:hover{background:#1b4a77;color:#fff}
 .nav-sub-btn.active{background:#1b4a77;color:#fff;font-weight:700;box-shadow:inset 2px 0 var(--gold)}
-/* On desktop the sidebar dropdown replaces the horizontal report tab bar */
-@media(min-width:1001px){.report-tabbar{display:none}}
-/* On the collapsed icon rail, hide the sub-items (horizontal tab bar takes over) */
-@media(max-width:1000px){.nav-sub,.nav-caret{display:none}}
+/* Responsive Reports/Admin navigation: inline sidebar dropdown on wide screens;
+   when the sidebar collapses to the icon rail, a compact on-page dropdown takes over. */
+.section-switch{display:none;margin:0 0 18px}
+.section-switch select{width:100%;max-width:440px;border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fff;color:var(--ink);font-weight:700}
+@media(max-width:1000px){.nav-caret,.nav-sub{display:none}.section-switch{display:block}}
 .freq-flag td{background:var(--red-bg)}
