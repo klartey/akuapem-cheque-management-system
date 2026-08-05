@@ -240,7 +240,7 @@ async function signIn(){const staffId=document.querySelector('#login-staff').val
 async function logout(){stopIdle();try{if(location.protocol!=='file:')await fetch('/api/logout',{method:'POST'})}catch(e){}state.logged=false;state.modal=null;state.user='';render()}
 
 // ---- Idle session timeout: 90s of inactivity (Bank of Ghana cyber-security policy) ----
-const IDLE_MS=120000, IDLE_WARN_MS=20000, KEEPALIVE_MS=25000;
+const IDLE_MS=180000, IDLE_WARN_MS=30000, KEEPALIVE_MS=25000;
 let _idleActive=false,_idleTimer=null,_warnTimer=null,_countInt=null,_lastPing=0;
 const _idleEvents=['mousemove','mousedown','keydown','touchstart','scroll','click'];
 function syncIdle(){if(state.logged&&!_idleActive)startIdle();else if(!state.logged&&_idleActive)stopIdle()}
@@ -250,8 +250,8 @@ function onUserActivity(){if(!state.logged)return;if(state.idleWarn){state.idleW
 function resetIdle(){clearTimeout(_idleTimer);clearTimeout(_warnTimer);clearInterval(_countInt);_warnTimer=setTimeout(showIdleWarn,Math.max(0,IDLE_MS-IDLE_WARN_MS));_idleTimer=setTimeout(()=>idleLogout(true),IDLE_MS)}
 function showIdleWarn(){state.idleCountdown=Math.ceil(IDLE_WARN_MS/1000);state.idleWarn=true;render();clearInterval(_countInt);_countInt=setInterval(()=>{state.idleCountdown--;const el=document.getElementById('idle-count');if(el)el.textContent=state.idleCountdown;if(state.idleCountdown<=0)clearInterval(_countInt)},1000)}
 function keepAlive(){state.idleWarn=false;resetIdle();render();if(location.protocol!=='file:')fetch('/api/ping',{method:'POST'}).catch(()=>{})}
-function idleLogout(timedOut){stopIdle();const was=state.logged;if(location.protocol!=='file:')fetch('/api/logout',{method:'POST'}).catch(()=>{});state.logged=false;state.modal=null;state.confirm=null;state.user='';state.page='dashboard';if(was&&timedOut)state.loginError='You were signed out after 120 seconds of inactivity, in line with the Bank of Ghana cyber-security policy. Please sign in again.';render()}
-function idleWarnOverlay(){return `<div class="modal-backdrop"><div class="modal" style="max-width:440px"><h2>Are you still there?</h2><p>For security, in line with the Bank of Ghana policy, you will be automatically signed out after 120 seconds of inactivity.</p><p>Signing out in <b id="idle-count">${state.idleCountdown||0}</b> second(s).</p><div class="modal-actions"><button class="ghost" onclick="logout()">Sign out now</button><button class="primary" onclick="keepAlive()">Stay signed in</button></div></div></div>`}
+function idleLogout(timedOut){stopIdle();const was=state.logged;if(location.protocol!=='file:')fetch('/api/logout',{method:'POST'}).catch(()=>{});state.logged=false;state.modal=null;state.confirm=null;state.user='';state.page='dashboard';if(was&&timedOut)state.loginError='You were signed out after 3 minutes of inactivity, in line with the Bank of Ghana cyber-security policy. Please sign in again.';render()}
+function idleWarnOverlay(){return `<div class="modal-backdrop"><div class="modal" style="max-width:440px"><h2>Are you still there?</h2><p>For security, in line with the Bank of Ghana policy, you will be automatically signed out after 3 minutes of inactivity.</p><p>Signing out in <b id="idle-count">${state.idleCountdown||0}</b> second(s).</p><div class="modal-actions"><button class="ghost" onclick="logout()">Sign out now</button><button class="primary" onclick="keepAlive()">Stay signed in</button></div></div></div>`}
 function setBranch(v){state.branch=v==='All Branches'?'All Branches':v;render()}
 function openForm(k){state.prefill=null;state.page=k+'-new';render()}
 function submitForm(k){const fields={};document.querySelectorAll('#txn-form [data-field]').forEach(el=>{fields[el.dataset.field]=el.value.trim()});state.modal={type:'submit',key:k,fields};render()}

@@ -84,10 +84,10 @@ function rateLimited(ip){const now=Date.now(),windowMs=60000,max=120;const arr=(
 const publicFiles={'index.html':'text/html','app.js':'application/javascript','styles.css':'text/css','logo.png':'image/png','logo.svg':'image/svg+xml'};
 
 // ---- Sessions: stateless signed cookie (serverless-safe) ----
-// Idle session timeout: 120 seconds of inactivity, per Bank of Ghana cyber-security policy.
+// Idle session timeout: 3 minutes of inactivity, per Bank of Ghana cyber-security policy.
 // The window is sliding — every authenticated request/keepalive re-issues the cookie with a
-// fresh timestamp, so active users stay signed in while a session idle for 120s is terminated.
-const SESSION_TTL=120*1000;
+// fresh timestamp, so active users stay signed in while a session idle for 3 min is terminated.
+const SESSION_TTL=180*1000;
 const SESSION_SECRET=process.env.SESSION_SECRET||crypto.randomBytes(32).toString('hex');
 if(!process.env.SESSION_SECRET) console.warn('[warn] SESSION_SECRET not set — using an ephemeral secret (sessions drop on restart). Set SESSION_SECRET in production.');
 function cookies(req){const out={};(req.headers.cookie||'').split(';').forEach(p=>{const i=p.indexOf('=');if(i>0)out[p.slice(0,i).trim()]=p.slice(i+1).trim()});return out}
