@@ -220,3 +220,4 @@
 @media(min-width:1001px){.report-tabbar{display:none}}
 /* On the collapsed icon rail, hide the sub-items (horizontal tab bar takes over) */
 @media(max-width:1000px){.nav-sub,.nav-caret{display:none}}
+.freq-flag td{background:var(--red-bg)}
