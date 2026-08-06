@@ -334,3 +334,4 @@ if(require.main===module){ready().then(()=>{const port=process.env.PORT||3000;se
 module.exports=handler;
 module.exports.handler=handler;
 module.exports.server=server;
+module.exports.ready=ready;
