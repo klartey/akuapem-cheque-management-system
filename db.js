@@ -58,6 +58,11 @@ async function tx(fn) {
 async function schema() {
   const q = _kind === 'pg' ? (s, p) => _pool.query(s, p) : (s, p) => _pglite.query(s, p);
   await q(`create table if not exists app_state(id int primary key, data jsonb not null)`);
+  try { await q(`alter table app_state add column if not exists version bigint not null default 0`); } catch (e) { /* older backends */ }
+  await q(`create table if not exists business_audit(
+    id bigserial primary key, ts text not null, action text not null,
+    ref text, actor text, role text, branch text, remarks text, created_at timestamptz not null default now())`);
+  await q(`create index if not exists idx_bizaudit_id on business_audit(id desc)`);
   await q(`create table if not exists credentials(id text primary key, salt text not null, hash text not null)`);
   await q(`create table if not exists config(key text primary key, value jsonb not null)`);
   await q(`create table if not exists customers(
@@ -75,7 +80,7 @@ async function schema() {
   // Lock the tables away from the Supabase public REST API. The app connects as the
   // postgres role (bypasses RLS), so this only denies the anon/authenticated PostgREST
   // roles — PII (customers) and password hashes (credentials) are never web-exposed.
-  for (const t of ['app_state', 'credentials', 'config', 'customers', 'system_log', 'password_reset']) {
+  for (const t of ['app_state', 'credentials', 'config', 'customers', 'system_log', 'password_reset', 'business_audit']) {
     try { await q(`alter table ${t} enable row level security`); } catch (e) { /* not supported (PGlite) — no PostgREST there anyway */ }
   }
   // Fast fuzzy search where the extension exists (Supabase). Harmless if unavailable (PGlite falls back to a scan).
